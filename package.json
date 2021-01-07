@@ -1,11 +1,11 @@
 {
-  "name": "ts-template",
+  "name": "crossy-rpg",
   "version": "0.0.1",
-  "description": "A teamplate TypeScript project",
-  "main": "src/index.ts",
+  "description": "A simple road crossing game",
+  "main": "src/index.tsx",
   "scripts": {
     "build": "webpack --mode production",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint . --ext .tsx",
     "start:dev": "webpack serve --mode development"
   },
   "author": "Brian Henderson",
