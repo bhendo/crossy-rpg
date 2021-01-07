@@ -1,12 +1,19 @@
-import { Scene } from "phaser";
+import { Scene, GameObjects } from "phaser";
 import { DragonSprite, PlayerSprite, TreasureSprite } from "../sprites";
 import { assets } from "../assets";
+
+type Score = {
+  attempt: number;
+  highest: number;
+  last: number;
+};
 
 export class MainScene extends Scene {
   private player: Phaser.GameObjects.Sprite;
   private treasure: Phaser.GameObjects.Sprite;
   private dragons: Phaser.GameObjects.Group;
   private isTerminating = false;
+  private score: Score = { attempt: 0, highest: 0, last: 0 };
 
   constructor(config: string) {
     super(config);
@@ -17,12 +24,12 @@ export class MainScene extends Scene {
     });
   }
   create(): void {
+    this.score.attempt++;
     this.isTerminating = false;
     const yStart = Number(this.sys.game.config.height) / 2;
+
     this.add.sprite(0, 0, "background").setOrigin(0, 0);
-
     this.player = new PlayerSprite(this, 40, yStart).setScale(0.5);
-
     const groupCreateConfig: Phaser.Types.GameObjects.Group.GroupCreateConfig = {
       classType: DragonSprite,
       key: "dragon",
@@ -34,7 +41,6 @@ export class MainScene extends Scene {
         stepY: 20,
       },
     };
-
     this.dragons = this.add.group(groupCreateConfig);
 
     this.dragons.getChildren().forEach((dragon) => {
@@ -46,6 +52,19 @@ export class MainScene extends Scene {
       Number(this.sys.game.config.width) - 80,
       yStart
     ).setScale(0.6);
+
+    this.scene.scene.make.text({
+      x: 10,
+      y: 10,
+      text: `Attempt: ${this.score.attempt}\nLast: ${this.score.last}\nHighest: ${this.score.highest}`,
+      style: {
+        fontSize: "12px",
+        fontFamily: "Arial",
+        color: "#ffffff",
+        align: "left",
+      },
+      add: true,
+    });
   }
   update(): void {
     if (this.isTerminating) return;
@@ -59,7 +78,7 @@ export class MainScene extends Scene {
       return this.gameOver(true);
     }
 
-    this.dragons.getChildren().forEach((dragon) => {
+    this.dragons.getChildren().forEach((dragon, index) => {
       const dragonSprite = dragon as DragonSprite;
       dragonSprite.update();
       if (
@@ -68,6 +87,9 @@ export class MainScene extends Scene {
           dragonSprite.getBounds()
         )
       ) {
+        this.score.last = index;
+        this.score.highest =
+          index > this.score.highest ? index : this.score.highest;
         return this.gameOver(false);
       }
     });
